@@ -10,8 +10,11 @@
 
 #include "gg/questnav/questnav/protos/wpilib/CommandResponseProto.h"
 
+using InputStream = wpi::ProtoInputStream<questnav::CommandResponseStruct>;
+using OutputStream = wpi::ProtoOutputStream<questnav::CommandResponseStruct>;
+
 std::optional<questnav_protos_commands_ProtobufQuestNavCommandResponse>
-wpi::Protobuf<questnav_protos_commands_ProtobufQuestNavCommandResponse>::Unpack(InputStream& stream) {
+wpi::Protobuf<questnav::CommandResponseStruct>::Unpack(InputStream& stream) {
   questnav_protos_commands_ProtobufQuestNavCommandResponse msg;
   if (!stream.Decode(msg)) {
     return std::nullopt;
@@ -19,7 +22,7 @@ wpi::Protobuf<questnav_protos_commands_ProtobufQuestNavCommandResponse>::Unpack(
   return msg;
 }
 
-bool wpi::Protobuf<questnav_protos_commands_ProtobufQuestNavCommandResponse>::Pack(
+bool wpi::Protobuf<questnav::CommandResponseStruct>::Pack(
     OutputStream& stream, const questnav_protos_commands_ProtobufQuestNavCommandResponse& value) {
   return stream.Encode(value);
 }
