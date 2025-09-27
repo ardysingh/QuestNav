@@ -8,6 +8,8 @@ plugins {
     id 'edu.wpi.first.NativeUtils' version '2025.9.0'
     id 'edu.wpi.first.GradleJni' version '1.1.0'
     id 'edu.wpi.first.GradleVsCode' version '2.1.0'
+    id "edu.wpi.first.GradleRIO" version "2025.3.2"
+    // wpiutil-cpp-2025.3.2-headeres
 }
 
 // WPILib Version
@@ -104,25 +106,42 @@ model {
                         include '**/*.cpp'
                     }
                     exportedHeaders {
+                        // srcDirs '/Users/ardaman/wpilib-includes'
                         srcDirs 'src/main/native/include'
+                        srcDirs 'src/main/native/cpp/gg/questnav/questnav/protos/generated'
+                        srcDirs '/opt/homebrew/opt/nanopb/include' // Add Protobuf include path
+                        srcDirs '/Users/ardaman/.gradle/caches/8.11/transforms/b21a2f217fa42f4cd1ca6ab0cb3be68d/transformed/wpiutil-cpp-2025.3.2-headers'
+                        srcDirs '/Users/ardaman/.gradle/caches/8.11/transforms/88c076aa0a3979c2e0dc5686a74190c9/transformed/ntcore-cpp-2025.3.2-headers'
+                        srcDirs '/Users/ardaman/.gradle/caches/8.11/transforms/80049d069e6ee642065ee88c00b7c235/transformed/wpimath-cpp-2025.3.2-headers'
+                        srcDirs '/Users/ardaman/.gradle/caches/8.11/transforms/02584e30fe6ef13ba857457f0bf5d38c/transformed/wpilibc-cpp-2025.3.2-headers'
+                        
                     }
                 }
             }
-            nativeUtils.useRequiredLibrary(it, 'wpilib_shared')
-        }
-    }
-    testSuites {
-        QuestNavLibTest {
-            sources.cpp {
-                source {
-                    srcDir 'src/test/native/cpp'
-                    include '**/*.cpp'
-                }
+            binaries.all {
+                cppCompiler.args.add('-I/opt/homebrew/opt/nanopb/include') // Include Protobuf headers
+                linker.args.add('-L/opt/homebrew/opt/nanopb/lib')            // Link Protobuf libraries
             }
+            nativeUtils.useRequiredLibrary(it, 'wpilib_shared')
+            
+            wpi.cpp.enableExternalTasks(it)
+            wpi.cpp.vendor.cpp(it)
+            wpi.cpp.deps.wpilib(it)
 
-            nativeUtils.useRequiredLibrary(it, "wpilib_executable_shared", "googletest_static")
         }
     }
+    // testSuites {
+    //     QuestNavLibTest {
+    //         sources.cpp {
+    //             source {
+    //                 srcDir 'src/test/native/cpp'
+    //                 include '**/*.cpp'
+    //             }
+    //         }
+
+    //         nativeUtils.useRequiredLibrary(it, "wpilib_executable_shared", "googletest_static")
+    //     }
+    // }
 }
 
 apply from: 'publish.gradle'

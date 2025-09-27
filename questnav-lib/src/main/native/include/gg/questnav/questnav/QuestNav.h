@@ -123,25 +123,28 @@ class QuestNav {
   std::shared_ptr<nt::NetworkTable> quest_nav_table_;
 
   /** Subscriber for command response */
-  nt::ProtobufSubscriber<questnav_protos_commands_ProtobufQuestNavCommandResponse> response_;
+  nt::ProtobufSubscriber<questnav::CommandResponseStruct> response_;
 
   /** Subscriber for frame data */
-  nt::ProtobufSubscriber<questnav_protos_data_ProtobufQuestNavFrameData> frame_data_;
+  nt::ProtobufSubscriber<questnav::FrameDataStruct> frame_data_;
 
   /** Subscriber for device data */
-  nt::ProtobufSubscriber<questnav_protos_data_ProtobufQuestNavDeviceData> device_data_;
+  nt::ProtobufSubscriber<questnav::DeviceDataStruct> device_data_;
 
   /** Publisher for command requests */
-  nt::ProtobufPublisher<questnav_protos_commands_ProtobufQuestNavCommand> request_;
+  nt::ProtobufPublisher<questnav::CommandStruct> request_;
 
   /** Cached request to lessen memory pressure */
-  wpi::SmallVector<uint8_t, 64> cached_command_request_{};
+  // wpi::SmallVector<uint8_t, 64> cached_command_request_{};
+  questnav_protos_commands_ProtobufQuestNavCommand cached_command_request_{};
 
   /** Cached pose reset request to lessen memory pressure */
-  wpi::SmallVector<uint8_t, 64> cached_pose_reset_payload_{};
+  // wpi::SmallVector<uint8_t, 64> cached_pose_reset_payload_{};
+  _questnav_protos_commands_ProtobufQuestNavPoseResetPayload cached_pose_reset_payload_{};
 
   /** Cached proto pose (for reset requests) to lessen memory pressure */
-  wpi::SmallVector<uint8_t, 64> cached_proto_pose_{};
+  // wpi::SmallVector<uint8_t, 64> cached_proto_pose_{};
+  _wpi_proto_ProtobufPose2d cached_proto_pose_{};
 
   /** Last sent request id */
   int last_sent_request_id_ = 0;

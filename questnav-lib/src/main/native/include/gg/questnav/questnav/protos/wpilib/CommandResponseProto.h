@@ -12,13 +12,12 @@
 #include "gg/questnav/questnav/struct/CommandResponseStruct.h"
 #include "gg/questnav/questnav/protos/generated/commands.npb.h"
 
-
 template <>
 struct wpi::Protobuf<questnav::CommandResponseStruct> {
   using MessageStruct = questnav_protos_commands_ProtobufQuestNavCommandResponse;
   using InputStream = wpi::ProtoInputStream<questnav::CommandResponseStruct>;
   using OutputStream = wpi::ProtoOutputStream<questnav::CommandResponseStruct>;
 
-  static std::optional<questnav_protos_commands_ProtobufQuestNavCommandResponse> Unpack(InputStream& stream);
-  static bool Pack(OutputStream& stream, const questnav_protos_commands_ProtobufQuestNavCommandResponse& value);
+  static std::optional<questnav::CommandResponseStruct> Unpack(InputStream& istream);
+  static bool Pack(OutputStream& stream, const questnav::CommandResponseStruct& value);
 };

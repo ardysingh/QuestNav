@@ -14,9 +14,9 @@
 namespace questnav {
 
     struct CommandResponseStruct {
-        uint32_t tracking_lost_counter;
+        int command_id;
         bool success;
-        std::string battery_percent;
+        std::string error_message;
     };
 
 } // namespace questnav

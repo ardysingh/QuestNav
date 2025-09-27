@@ -88,7 +88,7 @@ typedef struct _wpi_proto_ProtobufEllipse2d {
 #define wpi_proto_ProtobufEllipse2d_init_default {{{NULL}, NULL}, 0, 0}
 #define wpi_proto_ProtobufTranslation2d_init_zero {0, 0}
 #define wpi_proto_ProtobufRotation2d_init_zero   {0}
-#define wpi_proto_ProtobufPose2d_init_zero       {{{NULL}, NULL}, {{NULL}, NULL}}
+#define wpi_proto_ProtobufPose2d_init_zero       {NULL, NULL, NULL, NULL}
 #define wpi_proto_ProtobufTransform2d_init_zero  {{{NULL}, NULL}, {{NULL}, NULL}}
 #define wpi_proto_ProtobufTwist2d_init_zero      {0, 0, 0}
 #define wpi_proto_ProtobufRectangle2d_init_zero  {{{NULL}, NULL}, 0, 0}

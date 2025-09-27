@@ -14,7 +14,7 @@
 using InputStream = wpi::ProtoInputStream<questnav::CommandStruct>;
 using OutputStream = wpi::ProtoOutputStream<questnav::CommandStruct>;
 
-std::optional<questnav_protos_commands_ProtobufQuestNavCommand>
+std::optional<questnav::CommandStruct>
 wpi::Protobuf<questnav::CommandStruct>::Unpack(InputStream& stream) {
   wpi::UnpackCallback<questnav::CommandType> typ;
 
@@ -28,10 +28,16 @@ wpi::Protobuf<questnav::CommandStruct>::Unpack(InputStream& stream) {
   if (!stream.Decode(msg)) {
     return std::nullopt;
   }
-  return msg;
+
+  // ADS TBD: Populate a questnav::CommandStruct from msg
+  // return msg;
+  return std::nullopt;
 }
 
-bool wpi::Protobuf<questnav::CommandStruct>::Pack(
-    OutputStream& stream, const questnav_protos_commands_ProtobufQuestNavCommand& value) {
-  return stream.Encode(value);
+bool wpi::Protobuf<questnav::CommandStruct>::Pack
+(
+    OutputStream& stream, const questnav::CommandStruct& value) {
+  // ADS TBD: Populate a questnav_protos_commands_ProtobufQuestNavCommand from value
+  questnav_protos_commands_ProtobufQuestNavCommand msg {};
+  return stream.Encode(msg);
 }

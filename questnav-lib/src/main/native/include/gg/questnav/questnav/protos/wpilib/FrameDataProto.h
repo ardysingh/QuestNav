@@ -18,7 +18,6 @@ struct wpi::Protobuf<questnav::FrameDataStruct> {
   using InputStream = wpi::ProtoInputStream<questnav::FrameDataStruct>;
   using OutputStream = wpi::ProtoOutputStream<questnav::FrameDataStruct>;
 
-
-  static std::optional<questnav_protos_data_ProtobufQuestNavFrameData> Unpack(InputStream& stream);
-  static bool Pack(OutputStream& stream, const questnav_protos_data_ProtobufQuestNavFrameData& value);
+  static std::optional<questnav::FrameDataStruct> Unpack(InputStream& stream);
+  static bool Pack(OutputStream& stream, const questnav::FrameDataStruct& value);
 };

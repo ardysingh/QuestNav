@@ -8,6 +8,7 @@
 */
 #include "gg/questnav/questnav/QuestNav.h"
 #include <frc/DriverStation.h>
+#include <frc/Errors.h>
 #include <fmt/core.h>
 
 namespace questnav {
@@ -15,12 +16,13 @@ namespace questnav {
 QuestNav::QuestNav()
     : nt4_instance_(nt::NetworkTableInstance::GetDefault()),
       quest_nav_table_(nt4_instance_.GetTable("QuestNav")),
-      response_(quest_nav_table_->GetProtobufTopic<questnav_protos_commands_ProtobufQuestNavCommandResponse>("response").Subscribe({})),
-      frame_data_(quest_nav_table_->GetProtobufTopic<questnav_protos_data_ProtobufQuestNavFrameData>("frameData").Subscribe({})),
-      device_data_(quest_nav_table_->GetProtobufTopic<questnav_protos_data_ProtobufQuestNavDeviceData>("deviceData").Subscribe({})),
-      request_(quest_nav_table_->GetProtobufTopic<questnav_protos_commands_ProtobufQuestNavCommand>("request").Publish()) {
+      response_(quest_nav_table_->GetProtobufTopic<questnav::CommandResponseStruct>("response").Subscribe({})),
+      frame_data_(quest_nav_table_->GetProtobufTopic<questnav::FrameDataStruct>("frameData").Subscribe({})),
+      device_data_(quest_nav_table_->GetProtobufTopic<questnav::DeviceDataStruct>("deviceData").Subscribe({})),
+      request_(quest_nav_table_->GetProtobufTopic<questnav::CommandStruct>("request").Publish()) {
 }
 
+/** ADS DEBUG
 void QuestNav::SetPose(const frc::Pose2d& pose) {
     // Initialize the nanopb structures
     cached_command_request_ = questnav_protos_commands_ProtobufQuestNavCommand_init_zero;
@@ -28,7 +30,7 @@ void QuestNav::SetPose(const frc::Pose2d& pose) {
     cached_proto_pose_ = wpi_proto_ProtobufPose2d_init_zero;
 
     // Pack the pose into the proto - need to manually set fields for nanopb
-    cached_proto_pose_::Pack
+    cached_proto_pose_::Pack()
 
     // Set up the pose reset payload
     cached_pose_reset_payload_.target_pose = cached_proto_pose_;
@@ -40,37 +42,26 @@ void QuestNav::SetPose(const frc::Pose2d& pose) {
 
     request_.Set(cached_command_request_);
 }
+*/
 
 int QuestNav::GetBatteryPercent() {
-    auto latest_device_data = device_data_.Get();
-    if (latest_device_data != nullptr) {
-        return latest_device_data.battery_percent;
-    }
-    return -1; // Return -1 to indicate no data available
+    DeviceDataStruct latest_device_data = device_data_.Get();
+    return latest_device_data.battery_percent;
 }
 
 bool QuestNav::IsTracking() {
-    auto latest_device_data = device_data_.Get();
-    if (latest_device_data != nullptr) {
-        return latest_device_data.currently_tracking;
-    }
-    return false; // Return false if no data for failsafe
+    DeviceDataStruct latest_device_data = device_data_.Get();
+    return latest_device_data.currently_tracking;
 }
 
 int QuestNav::GetFrameCount() {
-    auto latest_frame_data = frame_data_.Get();
-    if (latest_frame_data != nullptr) {
-        return latest_frame_data.frame_count;
-    }
-    return -1; // Return -1 to indicate no data available
+    FrameDataStruct latest_frame_data = frame_data_.Get();
+    return latest_frame_data.frame_count;
 }
 
 int QuestNav::GetTrackingLostCounter() {
-    auto latest_device_data = device_data_.Get();
-    if (latest_device_data != nullptr) {
-        return latest_device_data.tracking_lost_counter;
-    }
-    return -1; // Return -1 to indicate no data available
+    DeviceDataStruct latest_device_data = device_data_.Get();
+    return latest_device_data.tracking_lost_counter;
 }
 
 bool QuestNav::IsConnected() {
@@ -89,9 +80,11 @@ double QuestNav::GetLatency() {
 
 double QuestNav::GetAppTimestamp() {
     auto latest_frame_data = frame_data_.Get();
+    /* ADS: Return value can never be null, per the Subscriber interface: https://github.com/wpilibsuite/allwpilib/blob/ee0a8a1e568787613918db81f8737869da37d1d0/ntcore/src/main/native/include/networktables/ProtobufTopic.h#L34
     if (latest_frame_data != nullptr) {
+    */
         return latest_frame_data.timestamp;
-    }
+    // }
     return -1; // Return -1 to indicate no data available
 }
 
@@ -100,34 +93,38 @@ double QuestNav::GetDataTimestamp() {
     return MicrosecondsToSeconds(atomic_data.serverTime);
 }
 
+
 frc::Pose2d QuestNav::GetPose() {
-    auto latest_frame_data = frame_data_.Get();
-    if (latest_frame_data != nullptr) {
+    FrameDataStruct latest_frame_data = frame_data_.Get();
+    /* ADS: Return value can never be null, per the interface: https://github.com/wpilibsuite/allwpilib/blob/ee0a8a1e568787613918db81f8737869da37d1d0/ntcore/src/main/native/include/networktables/ProtobufTopic.h#L34 */
+    // if (latest_frame_data != nullptr) {
         const auto& pose_proto = latest_frame_data.pose2d;
         return frc::Pose2d{
-            units::meter_t{pose_proto.x},
-            units::meter_t{pose_proto.y},
-            frc::Rotation2d{units::radian_t{pose_proto.rotation.radians}}
+            units::meter_t{pose_proto.X()},
+            units::meter_t{pose_proto.Y()},
+            frc::Rotation2d{units::radian_t{pose_proto.Rotation().Radians()}}
         };
-    }
-    return frc::Pose2d{}; // Return zero pose to indicate no data available
+    // }
+    // return frc::Pose2d{}; // Return zero pose to indicate no data available
 }
 
 void QuestNav::CommandPeriodic() {
-    auto latest_command_response = response_.Get();
+    CommandResponseStruct latest_command_response = response_.Get();
 
     // if we don't have data or for some reason the response we got isn't for the command we sent,
     // skip for this loop
-    if (!latest_command_response != nullptr ||
-        latest_command_response.command_id != last_sent_request_id_) {
+    /* ADS: Return value can never be null, per the interface: https://github.com/wpilibsuite/allwpilib/blob/ee0a8a1e568787613918db81f8737869da37d1d0/ntcore/src/main/native/include/networktables/ProtobufTopic.h#L34 */
+    // if (!latest_command_response != nullptr ||
+    if (latest_command_response.command_id != last_sent_request_id_) {
         return;
     }
 
     if (last_processed_response_id_ != latest_command_response.command_id) {
         if (!latest_command_response.success) {
-            frc::DriverStation::ReportError(
-                fmt::format("QuestNav command failed!\n{}",
-                           latest_command_response.error_message));
+            // frc::DriverStation::ReportError(
+            FRC_ReportError(frc::err::Error,
+                            "QuestNav command failed!\n{}",
+                            latest_command_response.error_message);
         }
         // don't double process
         last_processed_response_id_ = latest_command_response.command_id;
